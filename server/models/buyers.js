@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import { connectDb } from "./db.js";
 
 const mongoose = await connectDb();
@@ -6,39 +7,70 @@ const mongoose = await connectDb();
 const buyerSchema = new mongoose.Schema({
     username: String,
     email: String,
-})
+    pwhash: {
+        type: String,
+        required: false,
+        select: false  // Hide pwhash from queries by default
+    }
+});
 
 // Models
-const Buyer = mongoose.model('buyer', buyerSchema, 'buyers')
+const Buyer = mongoose.model('buyer', buyerSchema, 'buyers');
 
-// Functions to expose to the outside world!
-export async function createBuyer(username, email) {
+// Password utilities
+
+// Explicitly select pwhash for password checking
+export async function checkPassword(buyerId, candidatePassword) {
+    const buyer = await Buyer.findById(buyerId).select('+pwhash');
+    if (!buyer?.pwhash) return false;
+    return await bcrypt.compare(candidatePassword, buyer.pwhash);
+}
+
+export async function updateBuyerPassword(id, rawPassword) {
+    const salt = await bcrypt.genSalt(10);
+    const pwhash = await bcrypt.hash(rawPassword, salt);
+    await Buyer.updateOne({ _id: id }, { pwhash });
+    return findBuyerById(id);
+}
+
+// CRUD functions
+
+export async function createBuyer(username, email, rawPassword) {
+    let pwhash;
+    if (rawPassword) {
+        const salt = await bcrypt.genSalt(10);
+        pwhash = await bcrypt.hash(rawPassword, salt);
+    }
+
     const newBuyer = await Buyer.create({
         username, 
-        email
-    })    
-    return newBuyer
+        email,
+        pwhash
+    });
+    return newBuyer;
 }
 
 export async function findAllBuyers() {
-    const buyers = await Buyer.find()
-    return buyers
+    return await Buyer.find();  // pwhash is excluded by default
 }
 
 export async function findBuyerById(id) {
-    const buyer = await Buyer.findById(id)
-    return buyer
+    return await Buyer.findById(id);  // pwhash is excluded by default
+}
+
+export async function findBuyerByUsername(username) {
+    return await Buyer.findOne({ username });  // pwhash is excluded by default
 }
 
 export async function updateBuyer({ _id, username, email }) {
-    await Buyer.updateOne({ _id }, { username, email })
-    return findBuyerById(_id)
+    await Buyer.updateOne({ _id }, { username, email });
+    return findBuyerById(_id);
 }
 
 export async function deleteBuyer(id) {
-    return await Buyer.deleteOne({ _id: id})
+    return await Buyer.deleteOne({ _id: id });
 }
 
 export async function deleteAllBuyers() {
-    return await Buyer.deleteMany()
+    return await Buyer.deleteMany();
 }
