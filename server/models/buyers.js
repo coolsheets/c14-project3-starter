@@ -3,6 +3,11 @@ import { connectDb } from "./db.js";
 
 const mongoose = await connectDb();
 
+//
+// Authenticated with GPT's help:
+// https://chatgpt.com/share/6830bb7c-03f8-8013-9eb5-1aacba9d9e9b
+//
+
 // Schema 
 const buyerSchema = new mongoose.Schema({
     username: String,

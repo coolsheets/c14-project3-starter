@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { createBuyer, deleteBuyer, findAllBuyers, findBuyerById, updateBuyer } from "../models/buyers.js";
+import { basicAuth } from "./auth.js";
 
 const router = Router();
 
