@@ -12,7 +12,7 @@ npm start
 ```
 In terminal 2:
 ```
-cd client
+cd buyer-web
 npm install
 npm run dev
 ```
