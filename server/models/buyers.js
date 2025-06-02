@@ -25,7 +25,7 @@ const Buyer = mongoose.model('buyer', buyerSchema, 'buyers');
 // Password utilities
 
 // Explicitly select pwhash for password checking
-export async function checkPassword(buyerId, candidatePassword) {
+export async function checkBuyerPassword(buyerId, candidatePassword) {
     const buyer = await Buyer.findById(buyerId).select('+pwhash');
     if (!buyer?.pwhash) return false;
     return await bcrypt.compare(candidatePassword, buyer.pwhash);
