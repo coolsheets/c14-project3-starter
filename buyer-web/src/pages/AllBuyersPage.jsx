@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { getAllBuyers } from "../api"
 import { useLogin } from "../LoginContext";
-import { Link } from "react-router";
+import Header from "../components/Header";
 
 export default function AllBuyersPage() {
     const [buyers, setBuyers ] = useState([])
@@ -19,10 +19,8 @@ export default function AllBuyersPage() {
 
     return (
         <div>
+            <Header />
             <h1>All Buyers</h1>
-            { isLoggedIn && <div> hello {user.username}</div>}
-            { !isLoggedIn && <Link to="/login">Log in</Link>}
-
             <ol> 
                 { buyers.map((buyer) => (
                     <li key={buyer._id}>{buyer.username}</li>
