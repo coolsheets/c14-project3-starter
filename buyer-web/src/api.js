@@ -1,31 +1,26 @@
-// api.js
+const AUTH_KEY = 'auth_header';
 
-// In-memory cached Authorization header
-let authHeader = null;
-
-// Utility: Base64 encode username:password for Basic Auth
-function encodeBasicAuth(username, password) {
-  return 'Basic ' + btoa(`${username}:${password}`);
+// Helper: get stored Authorization header
+function getAuthHeader() {
+  return localStorage.getItem(AUTH_KEY);
 }
 
-// Utility: Attach Authorization header if logged in
-function getAuthHeaders() {
-  return authHeader ? { Authorization: authHeader } : {};
+// Helper: build fetch options with auth
+function authFetch(url, options = {}) {
+  const auth = getAuthHeader();
+  const headers = {
+    ...options.headers,
+    ...(auth ? { Authorization: auth } : {}),
+  };
+  return fetch(url, { ...options, headers });
 }
 
-// Public: Sign up a new user (optional password)
-export async function signUp(username, email, password) {
-  const body = { username, email };
-  if (password) {
-    body.password = password;
-  }
-
+// Signup — no auth required
+export async function signUp(username, email) {
   const response = await fetch('/api/buyers', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(body)
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, email }),
   });
 
   if (!response.ok) {
@@ -35,15 +30,15 @@ export async function signUp(username, email, password) {
   return await response.json();
 }
 
-// Public: Log in with credentials and cache the auth header
+// Login — test credentials and store header
 export async function login(username, password) {
-  const tempHeader = encodeBasicAuth(username, password);
-
+  const encoded = btoa(`${username}:${password}`);
+  const auth = `Basic ${encoded}`;
+  
   const response = await fetch('/api/auth/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: tempHeader
     },
     body: JSON.stringify({ username, password })
   });
@@ -52,53 +47,30 @@ export async function login(username, password) {
     throw new Error(await response.text());
   }
 
-  authHeader = tempHeader;
-  return await response.json(); // buyer info
+  const user = await response.json();
+  localStorage.setItem(AUTH_KEY, auth);
+  return user;
 }
 
-// Public: Check if user is logged in (header cached)
-export function isLoggedIn() {
-  return !!authHeader;
-}
-
-// Public: Log out (clear cached credentials)
+// Logout — just clear localStorage
 export function logout() {
-  authHeader = null;
+  localStorage.removeItem(AUTH_KEY);
 }
 
-// Protected: Fetch all buyers (requires auth)
-export async function getAllBuyers() {
-  const response = await fetch('/api/buyers', {
-    headers: {
-      ...getAuthHeaders()
-    }
-  });
-
+// Get current user if logged in
+export async function getCurrentUser() {
+  const response = await authFetch('/api/auth/me');
   if (!response.ok) {
     throw new Error(await response.text());
   }
-
   return await response.json();
 }
 
-// Protected: Get currently authenticated user from /auth/me
-export async function getCurrentUser() {
-  if (!authHeader) return null;
-
-  const response = await fetch('/api/auth/me', {
-    headers: {
-      ...getAuthHeaders()
-    }
-  });
-
-  if (response.ok) {
-    return await response.json();
+// Authenticated fetches
+export async function getAllBuyers() {
+  const response = await authFetch('/api/buyers');
+  if (!response.ok) {
+    throw new Error(await response.text());
   }
-
-  if (response.status === 401) {
-    logout(); // Credentials expired or invalid
-    return null;
-  }
-
-  throw new Error(await response.text());
+  return await response.json();
 }
