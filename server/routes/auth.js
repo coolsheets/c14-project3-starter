@@ -9,7 +9,7 @@ export async function basicAuth(req, res, next) {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Basic ')) {
-        return res.status(401).set('WWW-Authenticate', 'Basic').send('Authorization required');
+        return res.status(401).send('Authorization required');
     }
 
     const base64Credentials = authHeader.split(' ')[1];
