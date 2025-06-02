@@ -1,6 +1,6 @@
 import express from 'express';
 import { checkPassword, findBuyerByUsername } from '../models/buyers.js';
-import { basicAuth } from './auth.js';
+import { basicAuth, optionalBasicAuth } from './auth.js';
 
 //
 // Authoured with GPT:
@@ -33,8 +33,8 @@ router.post('/login', async (req, res) => {
     }
 });
 
-router.get('/me', basicAuth, (req, res) => {
-    res.send(req.buyer)
+router.get('/me', optionalBasicAuth, (req, res) => {
+    res.send(req.buyer || "null")
 })
 
 export default router;
