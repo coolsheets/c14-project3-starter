@@ -1,6 +1,9 @@
 import { Link, useNavigate } from "react-router";
 import { useLogin } from "../LoginContext";
 
+// thanks GPT:
+// https://chatgpt.com/share/683e1844-9568-8013-92ad-7583dbd4e9ab
+
 export default function Header() {
   const { user, logout, loading } = useLogin();
   const navigate = useNavigate();
