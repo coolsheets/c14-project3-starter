@@ -1,6 +1,6 @@
 import express from 'express';
-import { checkPassword, findBuyerByUsername } from '../models/buyers.js';
-import { optionalBasicAuth } from './auth.js';
+import { checkBuyerPassword, findBuyerByUsername } from '../models/buyers.js';
+import { optionalBuyerAuth, optionalSellerAuth } from './auth.js';
 
 //
 // thanks GPT:
@@ -9,7 +9,7 @@ import { optionalBasicAuth } from './auth.js';
 
 const router = express.Router();
 
-router.post('/login', async (req, res) => {
+router.post('/loginBuyer', async (req, res) => {
 
     const { username, password } = req.body;
 
@@ -19,7 +19,7 @@ router.post('/login', async (req, res) => {
 
     try {
         const buyer = await findBuyerByUsername(username);
-        const isValid = buyer && await checkPassword(buyer._id, password);
+        const isValid = buyer && await checkBuyerPassword(buyer._id, password);
 
         if (!isValid) {
             return res.status(401).json({ error: 'Invalid username or password' });
@@ -33,8 +33,8 @@ router.post('/login', async (req, res) => {
     }
 });
 
-router.get('/me', optionalBasicAuth, (req, res) => {
-    res.send(req.buyer || "null")
+router.get('/me', optionalBuyerAuth, optionalSellerAuth, (req, res) => {
+    res.send(req.buyer || req.seller || "null")
 })
 
 export default router;

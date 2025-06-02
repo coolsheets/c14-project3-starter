@@ -1,4 +1,4 @@
-import { checkPassword, findBuyerByUsername, } from "../models/buyers.js";
+import { checkBuyerPassword, findBuyerByUsername, } from "../models/buyers.js";
 import { disconnectDb } from "../models/db.js";
 
 if (process.argv < 4) {
@@ -13,7 +13,7 @@ if (!buyer) {
     console.log("User not found:", username)
     process.exit()
 }
-const result = await checkPassword(buyer._id, password)
+const result = await checkBuyerPassword(buyer._id, password)
 
 console.log("Password:", (result) ? "OK" : "NOPE!")
 await disconnectDb()
