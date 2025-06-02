@@ -26,7 +26,7 @@ router.post('/login', async (req, res) => {
         }
 
         // ✅ Auth success — you could return more here (token, buyer info, etc.)
-        res.json({ message: 'Login successful', buyer: { id: buyer._id, username: buyer.username, email: buyer.email } });
+        res.json(buyer);
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Internal server error' });
