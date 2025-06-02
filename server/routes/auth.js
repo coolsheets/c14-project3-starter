@@ -1,8 +1,8 @@
 import { findBuyerByUsername, checkPassword } from '../models/buyers.js';
 
 //
-// Authoured with GPT:
-// https://chatgpt.com/share/6830bb7c-03f8-8013-9eb5-1aacba9d9e9b
+// thanks GPT:
+// https://chatgpt.com/share/683e1844-9568-8013-92ad-7583dbd4e9ab
 //
 
 export async function basicAuth(req, res, next) {
