@@ -16,13 +16,13 @@ router.get('/', async (req, res) => {
 })
 
 router.post('/', async (req, res) => {
-    const { username, email } = req.body
-    if (!username || !email) {
-        res.status(400).send("username and email required")
+    const { username, email, password} = req.body
+    if (!username || !email || !password) {
+        res.status(400).send("username and email and password required")
     }
 
     try {
-        const newBuyer = await createBuyer(username, email)
+        const newBuyer = await createBuyer(username, email, password)
         res.send(newBuyer)
     }
     catch (error) {
