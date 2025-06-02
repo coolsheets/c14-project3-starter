@@ -16,11 +16,11 @@ function authFetch(url, options = {}) {
 }
 
 // Signup — no auth required
-export async function signUp(username, email) {
+export async function signUp(username, email, password) {
   const response = await fetch('/api/buyers', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, email }),
+    body: JSON.stringify({ username, email, password }),
   });
 
   if (!response.ok) {
@@ -34,7 +34,7 @@ export async function signUp(username, email) {
 export async function login(username, password) {
   const encoded = btoa(`${username}:${password}`);
   const auth = `Basic ${encoded}`;
-  
+
   const response = await fetch('/api/auth/login', {
     method: 'POST',
     headers: {
