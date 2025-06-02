@@ -36,3 +36,35 @@ export async function basicAuth(req, res, next) {
         return res.status(500).send('Internal server error');
     }
 }
+
+export async function optionalBasicAuth(req, res, next) {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Basic ')) {
+        // No credentials — proceed without authentication
+        return next();
+    }
+
+    try {
+        const base64Credentials = authHeader.split(' ')[1];
+        const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+        const [username, password] = credentials.split(':');
+
+        if (!username || !password) {
+            return next(); // malformed, but we won't reject
+        }
+
+        const buyer = await findBuyerByUsername(username);
+        const isValid = buyer && await checkPassword(buyer._id, password);
+
+        if (isValid) {
+            req.buyer = buyer; // attach to request
+        }
+
+        // Proceed regardless of auth success
+        return next();
+    } catch (err) {
+        console.error('Optional auth error:', err);
+        return next(); // fail silently
+    }
+}
