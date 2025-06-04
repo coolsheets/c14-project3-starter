@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useLogin } from "../LoginContext";
+
+import './Page.css'
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -22,21 +24,21 @@ export default function LoginPage() {
     try {
       console.log("Logging in with", username);
       await login(username, password);
-      navigate("/buyers");
+      navigate("/");
     } catch (err) {
       alert("Login failed: " + err.message);
     }
   }
 
   return (
-    <div>
+    <div className="page h-centered v-centered gapped">
       <h1>Login</h1>
 
-      <form onSubmit={doLogin}>
+      <form className="h-centered-column gapped" onSubmit={doLogin}>
         <div>
-          <label htmlFor="username">Username</label>
           <input
             id="username"
+            placeholder="User Name"
             value={username}
             onChange={updateUsername}
             autoComplete="username"
@@ -44,18 +46,19 @@ export default function LoginPage() {
         </div>
 
         <div>
-          <label htmlFor="password">Password</label>
           <input
             id="password"
             type="password"
+            placeholder="Password"
             value={password}
             onChange={updatePassword}
             autoComplete="current-password"
           />
         </div>
 
-        <button type="submit">Log in</button>
+        <button type="submit">LOG IN</button>
       </form>
+      <Link to="/">Back</Link>
     </div>
   );
 }

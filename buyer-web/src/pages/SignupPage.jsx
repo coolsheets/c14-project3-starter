@@ -2,6 +2,8 @@ import { useState } from "react"
 import { signUp } from "../api"
 import { useNavigate } from "react-router"
 
+import './Page.css'
+
 export default function SignupPage() {
 
     const navigate = useNavigate()
@@ -25,19 +27,17 @@ export default function SignupPage() {
     async function doSignUp(e) {
        console.log('Doing the signup with ', username, email, password) 
         await signUp(username, email, password)
-        navigate('/buyers')
+        navigate('/login')
     }
 
     return (
-        <div>
-            <h1>Signup</h1>
-            <label>Username</label>
-            <input value={username} onChange={updateUsername}/>
-            <label>Email Address</label>
-            <input value={email} onChange={updateEmail}/>
-            <label>Password</label>
-            <input value={password} type="password" onChange={updatePassword}/>
-            <button onClick={doSignUp}>Sign up!</button>
+        <div className="page h-centered  v-centered gapped">
+            <h1>Sign up</h1>
+            <div>Welcome to Seller Marketplace!</div>
+            <input placeholder="Username" value={username} onChange={updateUsername}/>
+            <input placeholder="Email" value={email} onChange={updateEmail}/>
+            <input placeholder="Password" value={password} type="password" onChange={updatePassword}/>
+            <button onClick={doSignUp}>SIGN UP</button>
         </div>
     )
 }

@@ -1,15 +1,15 @@
 import { Link } from "react-router";
-import Header from "../components/Header";
+import { useLogin } from "../LoginContext";
+
+import './Page.css'
 
 export default function SplashPage() {
-
-
     return (
-        <div>
-            <Header />
-            <h1>Hallo!</h1>
-            <Link to="signup">Sign up</Link>
-            <Link to="buyers">See Buyers</Link>
+        <div className="page h-centered v-centered">
+            <h1>Welcome to Buyer Marketplace!</h1>
+            <Link to="login"><button>LOGIN</button></Link>
+            <div>-- or --</div>
+            <Link to="signup"><button>SIGN UP</button></Link>
         </div>
     )
 }

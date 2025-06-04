@@ -1,18 +1,40 @@
 const AUTH_KEY = 'auth_header';
 
-// Helper: get stored Authorization header
 function getAuthHeader() {
   return localStorage.getItem(AUTH_KEY);
 }
 
-// Helper: build fetch options with auth
-function authFetch(url, options = {}) {
+async function authGet(url, options = {}) {
   const auth = getAuthHeader();
   const headers = {
     ...options.headers,
     ...(auth ? { Authorization: auth } : {}),
   };
-  return fetch(url, { ...options, headers });
+  const response = await fetch(url, { ...options, headers });
+    if (!response.ok) {
+    throw new Error(await response.text());
+  }
+  return await response.json();
+}
+
+async function authPost(url, body, options = {}) {
+  const auth = getAuthHeader();
+  const headers = {
+    ...options.headers,
+    ...(auth ? { Authorization: auth } : {}),
+    "Content-Type": "application/json"
+  };
+
+  const postOptions = {
+    method: "post",
+    body: JSON.stringify(body)
+  }
+
+  const response = await fetch(url, { ...postOptions, ...options, headers });
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+  return await response.json();
 }
 
 // Signup — no auth required
@@ -35,7 +57,7 @@ export async function login(username, password) {
   const encoded = btoa(`${username}:${password}`);
   const auth = `Basic ${encoded}`;
 
-  const response = await fetch('/api/auth/login', {
+  const response = await fetch('/api/auth/loginBuyer', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -59,7 +81,7 @@ export function logout() {
 
 // Get current user if logged in
 export async function getCurrentUser() {
-  const response = await authFetch('/api/auth/me');
+  const response = await authGet('/api/auth/me');
   if (!response.ok) {
     throw new Error(await response.text());
   }
@@ -67,10 +89,18 @@ export async function getCurrentUser() {
 }
 
 // Authenticated fetches
-export async function getAllBuyers() {
-  const response = await authFetch('/api/buyers');
-  if (!response.ok) {
-    throw new Error(await response.text());
-  }
-  return await response.json();
+export async function getMyListings() {
+  return await authGet('/api/listings/mine');
+}
+
+export async function getAllListings() {
+  return await authGet('/api/listings');
+}
+
+export async function getListing(listingId) {
+  return await authGet(`/api/listings/${listingId}`);
+}
+
+export async function createListing(details) {
+  return await authPost('/api/listings', details)
 }
