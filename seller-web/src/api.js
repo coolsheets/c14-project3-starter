@@ -81,11 +81,7 @@ export function logout() {
 
 // Get current user if logged in
 export async function getCurrentUser() {
-  const response = await authGet('/api/auth/me');
-  if (!response.ok) {
-    throw new Error(await response.text());
-  }
-  return await response.json();
+  return await authGet('/api/auth/me');
 }
 
 // Authenticated fetches
