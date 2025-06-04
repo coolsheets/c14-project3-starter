@@ -1,4 +1,4 @@
-const AUTH_KEY = 'auth_header';
+const AUTH_KEY = 'auth_header_seller';
 
 function getAuthHeader() {
   return localStorage.getItem(AUTH_KEY);
