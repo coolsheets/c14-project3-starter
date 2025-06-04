@@ -1,0 +1,107 @@
+import { Router } from "express";
+import {
+    createListing,
+    deleteListing,
+    findAllListings,
+    findListingById,
+    findListingsBySeller,
+    updateListing
+} from "../models/listings.js";
+import { sellerAuth } from "./auth.js";
+
+const router = Router();
+
+// GET /api/listings
+router.get("/", async (req, res) => {
+    try {
+        const allListings = await findAllListings();
+        res.send(allListings);
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
+});
+
+// POST /api/listings
+router.post("/", sellerAuth,  async (req, res) => {
+    const { title, description } = req.body
+    if (!title) {
+        return res.status(400).send("Listings required a title and an optional description")
+    }
+    try {
+        const newListing = await createListing(title, description, req.seller);
+        res.send(newListing);
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
+});
+
+// GET /api/listings/mine
+router.get("/mine", sellerAuth, async (req, res) => {
+    try {
+        const listings = await findListingsBySeller(req.seller);
+        res.send(listings);
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
+});
+
+// GET /api/listings/:listingId
+router.get("/:listingId", async (req, res) => {
+    const { listingId } = req.params;
+    try {
+        const listing = await findListingById(listingId);
+        res.send(listing);
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
+});
+
+// PUT /api/listings/:listingId
+router.put("/:listingId", sellerAuth, async (req, res) => {
+    const { listingId } = req.params;
+    const { title, description } = req.body;
+
+    // validate
+    const listing = await findListingById(listingId)
+    if (!listing) {
+        return res.sendStatus(404)
+    }
+    if (listing.seller._id != req.seller._id) {
+        return res.sendStatus(403)
+    }
+
+    try {
+        const updated = await updateListing({ _id: listingId, title, description });
+        res.send(updated);
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
+});
+
+// DELETE /api/listings/:listingId
+router.delete("/:listingId", sellerAuth, async (req, res) => {
+    const { listingId } = req.params;
+
+    const listing = await findListingById(listingId)
+    if (!listing) {
+        return res.sendStatus(404)
+    }
+    if (listing.seller._id != req.seller._id) {
+        return res.sendStatus(403)
+    }
+
+    try {
+        const result = await deleteListing(listingId);
+        res.send(result);
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
+});
+
+export default router
