@@ -104,3 +104,7 @@ export async function getListing(listingId) {
 export async function createListing(details) {
   return await authPost('/api/listings', details)
 }
+
+export async function getSeller(sellerId) {
+  return await authGet(`/api/sellers/${sellerId}`);
+}
