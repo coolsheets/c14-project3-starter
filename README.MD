@@ -17,3 +17,11 @@ npm install
 npm run dev
 ```
 Point your browser at localhost:5173 and see this app working.  Go ahead and sign up and see the document appear in the database
+
+In terminal 3:
+```
+cd seller-web
+npm install
+npm run dev
+```
+Point your browser at localhost:5174 and see this app working.  Go ahead and sign up and see the document appear in the database
