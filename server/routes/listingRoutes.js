@@ -24,6 +24,7 @@ router.get("/", async (req, res) => {
 
 // POST /api/listings
 router.post("/", sellerAuth,  async (req, res) => {
+    console.log('in post handler for listings')
     const { title, description } = req.body
     if (!title) {
         return res.status(400).send("Listings required a title and an optional description")

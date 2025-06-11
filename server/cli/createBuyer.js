@@ -1,4 +1,4 @@
-import { createBuyer, updateBuyerPassword } from "../models/buyers.js";
+import { createBuyer } from "../models/buyers.js";
 import { disconnectDb } from "../models/db.js";
 
 // [ 'node', 'createBuyer.js', 'tonye', 'tony_e@inceptionu.com' ]
