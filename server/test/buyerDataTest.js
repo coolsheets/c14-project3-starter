@@ -1,4 +1,4 @@
-import { checkBuyerPassword, createBuyer, findAllBuyers, findBuyerById } from "../models/buyers"
+import { checkBuyerPassword, createBuyer, findAllBuyers, findBuyerById, updateBuyerPassword } from "../models/buyers"
 
 describe('buyer data layer', () => {
 
@@ -49,12 +49,27 @@ describe('buyer data layer', () => {
         expect(passed).toEqual(true)
     })
 
-    it.skip('should unsuccessfully check a buyer password', async () => {
-        throw new Error('Implement me!')
+    it('should unsuccessfully check a buyer password', async () => {
+        // setup
+        const actualBuyer = await createBuyer("tonytonetoni", "tony@toni.tone", "123456")
+
+        // execute
+        const passed = await checkBuyerPassword(actualBuyer._id, "NotMatchingPassword")
+
+        //verify
+        expect(passed).toEqual(false)
     })
 
-    it.skip('should update buyer password', async () => {
-        throw new Error('Implement me!')
+    it('should update buyer password', async () => {
+        // setup
+        const actualBuyer = await createBuyer("tonytonetoni", "tony@toni.tone", "123456")
+
+        // execute
+        await updateBuyerPassword(actualBuyer._id, 'NewPassword')
+
+        //verify
+        const passed = await checkBuyerPassword(actualBuyer._id, "NewPassword")
+        expect(passed).toEqual(true)
     })
 
 })
