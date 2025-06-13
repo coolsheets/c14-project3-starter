@@ -82,12 +82,24 @@ describe('/api/sellers', () => {
         expect(apiResult.email).toEqual(seller.email)
     })
 
-    it.skip('should update a seller', async () => {
-        //setup (use the data layer to create a seller)
+    it('should update a seller', async () => {
+        const seller = await createSeller('tonysellz', 'tony@seller.com', '123456')
+        const updatedUsername = 'tonysellzmore'
+        const updatedEmail = 'updatedEmail@seller.com'
+        
+        //execute
+        const apiResult = await doPut(`${baseUrl}/api/sellers/${seller._id}`, {
+            username: updatedUsername,
+            email: updatedEmail
+        })
 
-        //execute (use doPut with new data to /api/sellers/:id)
-
-        //verify (use the data layer to verify the data has changed
+        //verify - first the result of the POST
+        expect(apiResult.username).toEqual(updatedUsername)
+        expect(apiResult.email).toEqual(updatedEmail)
+        //verify - data layer
+        const updatedSeller = await findSellerById(seller._id)
+        expect(updatedSeller.username).toEqual(updatedUsername)
+        expect(updatedSeller.email).toEqual(updatedEmail)
     })
 
     it.skip('should only update a seller if you are logged in as that seller', async () => {

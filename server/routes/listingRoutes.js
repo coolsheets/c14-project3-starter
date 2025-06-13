@@ -71,7 +71,15 @@ router.put("/:listingId", sellerAuth, async (req, res) => {
     if (!listing) {
         return res.sendStatus(404)
     }
-    if (listing.seller._id != req.seller._id) {
+    console.log('Checking',listing.seller,'against',req.seller._id, 
+        typeof listing.seller, 
+        typeof req.seller._id, 
+        listing.seller == req.seller._id,
+        listing.seller.toString(),
+        req.seller._id.toString()
+    )
+
+    if (listing.seller.toString() !== req.seller._id.toString()) {
         return res.sendStatus(403)
     }
 

@@ -82,7 +82,7 @@ export async function doPost(url, body) {
         headers,
         body: JSON.stringify(body)
     })
-    expect(response.ok).toEqual(true) // HTTP request failed!
+    expect(response.status).toEqual(200) // HTTP request failed!
     return await response.json()
 }
 
@@ -95,7 +95,7 @@ export async function doPut(url, body) {
         headers,
         body: JSON.stringify(body)
     })
-    expect(response.ok).toEqual(true) // HTTP request failed!
+    expect(response.status).toEqual(200) // HTTP request failed!
     return await response.json()
 }
 
