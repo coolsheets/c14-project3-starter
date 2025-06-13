@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config({ path: "./test/.env" });
+
 const dbUri = process.env.MONGO_URI
 
 if (!(dbUri.includes('test') || dbUri.includes('Test'))) {
