@@ -1,5 +1,5 @@
 import { createSeller, findSellerById } from "../models/sellers.js"
-import { createSellerAndLogin, doGet, doPost, doPut, getCredentialHeaders, shutdownServer, startServer } from "./testServer.js"
+import { createSellerAndLogin, doGet, doPost, doPut, getCredentialHeaders, setCredentials, shutdownServer, startServer } from "./testServer.js"
 
 // sample layer-crossing tests
 // testing the controller is using the data layer properly
@@ -84,6 +84,7 @@ describe('/api/sellers', () => {
 
     it('should update a seller', async () => {
         const seller = await createSeller('tonysellz', 'tony@seller.com', '123456')
+        setCredentials(seller.username, '123456')
         const updatedUsername = 'tonysellzmore'
         const updatedEmail = 'updatedEmail@seller.com'
         
@@ -102,7 +103,7 @@ describe('/api/sellers', () => {
         expect(updatedSeller.email).toEqual(updatedEmail)
     })
 
-    it.skip('should only update a seller if you are logged in as that seller', async () => {
+    it('should only update a seller if you are logged in as that seller', async () => {
         //setup 
         const originalSeller = await createSeller('tonyseller', 'tony@seller.com', 'SuperSecret')
         const someOtherSeller = await createSellerAndLogin()
