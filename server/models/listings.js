@@ -9,15 +9,21 @@ const listingSchema = new mongoose.Schema({
     seller: { type: mongoose.Schema.Types.ObjectId, ref: 'seller' }    
 });
 
+const listingChatSchema = new mongoose.Schema({
+    buyer: { type: mongoose.Schema.Types.ObjectId, ref: 'buyer' },    
+    listing: { type: mongoose.Schema.Types.ObjectId, ref: 'listing' },    
+});
+
 // Models
 const Listing = mongoose.model('listing', listingSchema, 'listings');
+const ListingChat = mongoose.model('listingchat', listingChatSchema, 'listingchats');
 
 // CRUD functions
 export async function createListing(title, description, seller) {
     const newListing = await Listing.create({
         title, 
         description, 
-        seller    
+        seller   
     });
     return newListing;
 }
@@ -45,12 +51,17 @@ export async function updateListing({ _id, title, description }) {
 
 // find or create a chat for a listing (initiated by a buyer)
 export async function findOrCreateChatForListing(listing, buyer) {
-    return
+    const existingChat = await ListingChat.findOne({buyer, listing})
+    if (existingChat) {
+        return existingChat
+    }
+    const newChat = await ListingChat.create({listing, buyer})
+    return await ListingChat.findById(newChat._id)
 }
 
 // find all chats the buyer is involved in 
 export async function findAllChatsForBuyer(buyer) {
-    return [];
+    return await ListingChat.find({buyer})
 }
 
 // find all chats associated with a listing (for the seller)
@@ -85,4 +96,5 @@ export async function deleteListing(id) {
 
 export async function deleteAllListings() {
     await Listing.deleteMany();
+    await ListingChat.deleteMany();
 }
