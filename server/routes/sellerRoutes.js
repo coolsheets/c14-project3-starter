@@ -6,6 +6,7 @@ import {
     findSellerById,
     updateSeller
 } from "../models/sellers.js";
+import { sellerAuth } from "./auth.js";
 
 const router = Router();
 
@@ -49,13 +50,16 @@ router.get("/:sellerId", async (req, res) => {
 });
 
 // PUT /api/sellers/:sellerId
-router.put("/:sellerId", async (req, res) => {
+router.put("/:sellerId", sellerAuth, async (req, res) => {
     const { username, email } = req.body;
     if (!username || !email) {
         return res.status(400).send("username and email required");
     }
 
     const { sellerId } = req.params;
+    if (req.seller._id.toString() !== sellerId) {
+        return res.status(403).send("You can only update your own seller profile");
+    }
 
     try {
         const updated = await updateSeller({ _id: sellerId, username, email });

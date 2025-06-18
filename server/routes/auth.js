@@ -73,7 +73,6 @@ export async function optionalBuyerAuth(req, res, next) {
 export async function sellerAuth(req, res, next) {
     const authHeader = req.headers.authorization;
 
-    console.log('Auth is', authHeader)
     if (!authHeader || !authHeader.startsWith('Basic ')) {
         return res.status(401).send('Authorization required');
     }

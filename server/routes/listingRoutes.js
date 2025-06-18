@@ -24,7 +24,6 @@ router.get("/", async (req, res) => {
 
 // POST /api/listings
 router.post("/", sellerAuth,  async (req, res) => {
-    console.log('in post handler for listings')
     const { title, description } = req.body
     if (!title) {
         return res.status(400).send("Listings required a title and an optional description")
@@ -61,28 +60,24 @@ router.get("/:listingId", async (req, res) => {
     }
 });
 
-// PUT /api/listings/:listingId
-router.put("/:listingId", sellerAuth, async (req, res) => {
+async function verifySellerOwnedListing(req, res, next) {
     const { listingId } = req.params;
-    const { title, description } = req.body;
-
-    // validate
     const listing = await findListingById(listingId)
     if (!listing) {
-        return res.sendStatus(404)
+        return res.sendStatus(404);
     }
-    console.log('Checking',listing.seller,'against',req.seller._id, 
-        typeof listing.seller, 
-        typeof req.seller._id, 
-        listing.seller == req.seller._id,
-        listing.seller.toString(),
-        req.seller._id.toString()
-    )
-
-    if (listing.seller.toString() !== req.seller._id.toString()) {
-        return res.sendStatus(403)
+    if (listing.seller._id.toString() !== req.seller._id.toString()) {
+        return res.sendStatus(403);
     }
+    res.listing = listing; // attach listing to request for further use
+    next();
+}
 
+// PUT /api/listings/:listingId
+router.put("/:listingId", sellerAuth, verifySellerOwnedListing, async (req, res) => {
+    const { listingId } = req.params;
+    const { title, description } = req.body;
+``
     try {
         const updated = await updateListing({ _id: listingId, title, description });
         res.send(updated);
@@ -93,17 +88,8 @@ router.put("/:listingId", sellerAuth, async (req, res) => {
 });
 
 // DELETE /api/listings/:listingId
-router.delete("/:listingId", sellerAuth, async (req, res) => {
+router.delete("/:listingId", sellerAuth, verifySellerOwnedListing, async (req, res) => {
     const { listingId } = req.params;
-
-    const listing = await findListingById(listingId)
-    if (!listing) {
-        return res.sendStatus(404)
-    }
-    if (listing.seller._id != req.seller._id) {
-        return res.sendStatus(403)
-    }
-
     try {
         const result = await deleteListing(listingId);
         res.send(result);
