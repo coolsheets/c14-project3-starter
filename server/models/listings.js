@@ -61,7 +61,7 @@ export async function findOrCreateChatForListing(listing, buyer) {
 
 // find all chats the buyer is involved in 
 export async function findAllChatsForBuyer(buyer) {
-    return await ListingChat.find({buyer}).populate('listing')
+    return await ListingChat.find({buyer})
 }
 
 // find all chats associated with a listing (for the seller)

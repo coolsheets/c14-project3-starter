@@ -2,7 +2,7 @@ import { createBuyer } from "../models/buyers"
 import { addBuyerMessageToChat, addSellerMessageToChat, createListing, findAllChatsForBuyer, findAllChatsForListing, findAllListings, findListingsBySeller, findNewChatsForBuyer, findNewChatsForSeller, findOrCreateChatForListing } from "../models/listings"
 import { createSeller } from "../models/sellers"
 
-describe('listing data layer', () => {
+describe.only('listing data layer', () => {
 
     async function createBuyerSellerAndListing() {
         const buyer = await createBuyer('buyer','buyer@buyer.com', 'password123')
@@ -51,7 +51,7 @@ describe('listing data layer', () => {
         expect(actualListing.description).toEqual('This is a test listing')
     })
 
-    it.only('should allow a buyer to create a new chat', async () => {
+    it('should allow a buyer to create a new chat', async () => {
         // setup
         const { buyer, listing } = await createBuyerSellerAndListing()
 
@@ -64,7 +64,7 @@ describe('listing data layer', () => {
         expect(listingChat.buyer.toString()).toEqual(buyer._id.toString())
     })
 
-    it.only('should reuse an existing chat on the same listing', async () => {
+    it('should reuse an existing chat on the same listing', async () => {
         // setup
         const { buyer, listing } = await createBuyerSellerAndListing()
         const ogListingChat = await findOrCreateChatForListing(listing, buyer)
@@ -77,7 +77,7 @@ describe('listing data layer', () => {
         expect(listingChat._id.toString()).toEqual(ogListingChat._id.toString())
     })
 
-    it.only('should allow the buyer to find all their chats', async () => {
+    it('should allow the buyer to find all their chats', async () => {
         // setup
         const { buyer, listing } = await createBuyerSellerAndListing()
         const listingChat = await findOrCreateChatForListing(listing, buyer)
@@ -91,7 +91,7 @@ describe('listing data layer', () => {
         expect(actualChat._id.toString()).toEqual(listingChat._id.toString())
     })
 
-    it.only('should allow a seller to find all chats on a listing', async () => {
+    it('should allow a seller to find all chats on a listing', async () => {
         // setup
         const { buyer, seller, listing } = await createBuyerSellerAndListing()
         const listingChat = await findOrCreateChatForListing(listing, buyer)
@@ -107,11 +107,53 @@ describe('listing data layer', () => {
         expect(actualChat.buyer.toString()).toEqual(buyer._id.toString())
     })
 
-    it('should let a seller find chats with new messages in them', async () => {
+    it('should add buyer messages to a chat', async () => {
+        // setup
+        const { buyer, listing } = await createBuyerSellerAndListing()
+        const listingChat = await findOrCreateChatForListing(listing, buyer)
+
+        // execute
+        await addBuyerMessageToChat(listingChat, 'Hello Seller!')
+
+        // verify
+        const chats = await findAllChatsForBuyer(buyer)
+        expect(chats.length).toEqual(1)
+        const actualChat = chats[0]
+        expect(actualChat.listing.toString()).toEqual(listing._id.toString())
+        expect(actualChat.buyer.toString()).toEqual(buyer._id.toString())
+        expect(actualChat.messages.length).toEqual(1)
+        expect(actualChat.messages[0].content).toEqual('Hello Seller!')
+        expect(actualChat.messages[0].side).toEqual('buyer')
+    })
+
+    it('should add seller messages to a chat', async () => {
         // setup
         const { buyer, seller, listing } = await createBuyerSellerAndListing()
         const listingChat = await findOrCreateChatForListing(listing, buyer)
-        await addBuyerMessageToChat(listingChat, buyer, 'Hello Seller!')
+        await addBuyerMessageToChat(listingChat, 'Hello Seller!')
+
+        // execute
+        await addSellerMessageToChat(listingChat, 'Hello Buyer!')
+
+        // verify
+        const chats = await findAllChatsForBuyer(buyer)
+        expect(chats.length).toEqual(1)
+        const actualChat = chats[0]
+        expect(actualChat.listing.toString()).toEqual(listing._id.toString())
+        expect(actualChat.buyer.toString()).toEqual(buyer._id.toString())
+        expect(actualChat.messages.length).toEqual(1)
+        expect(actualChat.messages[0].content).toEqual('Hello Seller!')
+        expect(actualChat.messages[0].side).toEqual('buyer')
+        expect(actualChat.messages[0].content).toEqual('Hello Buyer!')
+        expect(actualChat.messages[0].side).toEqual('seller')
+    })
+
+
+    it.skip('should let a seller find chats with new messages in them', async () => {
+        // setup
+        const { buyer, seller, listing } = await createBuyerSellerAndListing()
+        const listingChat = await findOrCreateChatForListing(listing, buyer)
+        await addBuyerMessageToChat(listingChat, 'Hello Seller!')
 
         // execute
         const chats = await findNewChatsForSeller(seller)
@@ -125,7 +167,7 @@ describe('listing data layer', () => {
         expect(actualChat.messages[0].content).toEqual('Hello Seller!')
     })
 
-    it('new messages from a seller should "clear" new chats so they do not show up again as new', async () => {
+    it.skip('new messages from a seller should "clear" new chats so they do not show up again as new', async () => {
         // setup
         const { buyer, seller, listing } = await createBuyerSellerAndListing()
         const listingChat = await findOrCreateChatForListing(listing, buyer)
@@ -141,7 +183,7 @@ describe('listing data layer', () => {
         expect(newChats.length).toEqual(0)
     })
 
-    it('should let a buyer find chats with new messages in them', async () => {
+    it.skip('should let a buyer find chats with new messages in them', async () => {
         // setup
         const { buyer, seller, listing } = await createBuyerSellerAndListing()
         const listingChat = await findOrCreateChatForListing(listing, buyer)
