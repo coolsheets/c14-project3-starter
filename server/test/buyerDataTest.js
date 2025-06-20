@@ -1,4 +1,5 @@
-import { checkBuyerPassword, createBuyer, findAllBuyers, findBuyerById, updateBuyerPassword } from "../models/buyers"
+import { addFavoriteListingForBuyer, checkBuyerPassword, createBuyer, findAllBuyers, findBuyerById, getFavoriteListingsForBuyer, updateBuyerPassword } from "../models/buyers"
+import { createBuyerSellerAndListing } from "./listingsChatTest"
 
 describe('buyer data layer', () => {
 
@@ -70,6 +71,34 @@ describe('buyer data layer', () => {
         //verify
         const passed = await checkBuyerPassword(actualBuyer._id, "NewPassword")
         expect(passed).toEqual(true)
+    })
+
+    it('should add a favorite listing to a buyer', async () => {
+        // setup
+        const {buyer, listing} = await createBuyerSellerAndListing()        
+
+        // execute
+        await addFavoriteListingForBuyer(buyer, listing)
+
+        // verify
+        const favourites = await getFavoriteListingsForBuyer(buyer)
+        expect(favourites.length).toEqual(1)
+        expect(favourites[0]._id).toEqual(listing._id)
+        expect(favourites[0].title).toEqual(listing.title)
+        expect(favourites[0].description).toEqual(listing.description)
+    })
+
+    it('should return the favorites for a buyer', async () => {
+        // setup
+        const {buyer, listing} = await createBuyerSellerAndListing()        
+        await addFavoriteListingForBuyer(buyer, listing)
+
+        // execute
+        const actualBuyer = await findBuyerById(buyer._id)
+
+        // verify
+        expect(actualBuyer.favorites.length).toEqual(1)
+        expect(actualBuyer.favorites[0]).toEqual(listing._id)
     })
 
 })
