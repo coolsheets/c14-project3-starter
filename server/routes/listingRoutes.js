@@ -11,6 +11,19 @@ import { sellerAuth } from "./auth.js";
 
 const router = Router();
 
+async function verifySellerOwnedListing(req, res, next) {
+    const { listingId } = req.params;
+    const listing = await findListingById(listingId)
+    if (!listing) {
+        return res.sendStatus(404);
+    }
+    if (listing.seller._id.toString() !== req.seller._id.toString()) {
+        return res.sendStatus(403);
+    }
+    res.listing = listing; // attach listing to request for further use
+    next();
+}
+
 // GET /api/listings
 router.get("/", async (req, res) => {
     try {
@@ -59,19 +72,6 @@ router.get("/:listingId", async (req, res) => {
         res.sendStatus(500);
     }
 });
-
-async function verifySellerOwnedListing(req, res, next) {
-    const { listingId } = req.params;
-    const listing = await findListingById(listingId)
-    if (!listing) {
-        return res.sendStatus(404);
-    }
-    if (listing.seller._id.toString() !== req.seller._id.toString()) {
-        return res.sendStatus(403);
-    }
-    res.listing = listing; // attach listing to request for further use
-    next();
-}
 
 // PUT /api/listings/:listingId
 router.put("/:listingId", sellerAuth, verifySellerOwnedListing, async (req, res) => {
