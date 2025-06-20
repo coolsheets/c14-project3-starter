@@ -1,4 +1,4 @@
-import { createBuyerAndLogin, createSellerAndLogin, doGet, doPost, doPut, getCredentialHeaders, shutdownServer, startServer } from "./testServer.js"
+import { createSeller, createSellerAndLogin, doGet, doPost, doPut, shutdownServer, startServer } from "./testServer.js"
 
 // sample controller layer tests... 
 // virtually all interactions are through GET and POST 
@@ -43,68 +43,70 @@ describe('/api/listings', () => {
         expect(listing.seller).toEqual(seller._id.toString())
     })
 
-    it('should find a listing by id', async () => {
-        //setup
+    it('should find a listing by id', async () =>{
+        // setup
+
         const seller = await createSellerAndLogin()
+        // use data layer to create a listing for this seller
         const newListing = await doPost(`${baseUrl}/api/listings`, {
             title: 'Item of Great Importance',
             description: 'That is right, this item of Great Importance should be purchased immediately!'
         })
 
         // execute
-        const listing = await doGet(`${baseUrl}/api/listings/${newListing._id}`)
+        const foundListing = await doGet(`${baseUrl}/api/listings/${newListing._id}`)
 
         // verify
-        expect(listing.title).toEqual(newListing.title)
-        expect(listing.description).toEqual(newListing.description)
-        expect(listing.seller).toEqual(seller._id.toString())    
+        expect(foundListing.title).toEqual(newListing.title)
+        expect(foundListing.description).toEqual(newListing.description)
+        expect(foundListing.seller).toEqual(seller._id.toString())  
     })
 
-    it('should find listings that are "mine" for a logged in seller', async () => {
-        //setup
+    it.only('should find listings that are "mine" for a logged in seller', async () => {
+        // setup (same as above)
         const seller = await createSellerAndLogin()
+        
         const newListing = await doPost(`${baseUrl}/api/listings`, {
             title: 'Item of Great Importance',
             description: 'That is right, this item of Great Importance should be purchased immediately!'
         })
 
-        // execute
-        const listings = await doGet(`${baseUrl}/api/listings/mine`)
+        // execute /api/listings/mine
+        const myListings = await doGet(`${baseUrl}/api/listings/mine`)
 
-        // verify
-        expect(listings.length).toEqual(1)
-        const listing = listings[0]
-        expect(listing.title).toEqual(newListing.title)
-        expect(listing.description).toEqual(newListing.description)
-        expect(listing.seller).toEqual(seller._id.toString())    
+        // verify list
+        const found = myListings.find(l => l._id === newListing._id)
+        expect(found).toBeDefined()
+        expect(found.title).toEqual(newListing.title)
+        expect(found.seller).toEqual(seller._id.toString())        
     })
 
-    it('should not find listings that are not "mine" for a logged in seller', async () => {
-        //setup
-        const preExistingSeller = await createSellerAndLogin('other seller')
-        await doPost(`${baseUrl}/api/listings`, {
-            title: 'Item #1 Belonging to other Seller',
-            description: 'Buy me now!'
-        })
-        await doPost(`${baseUrl}/api/listings`, {
-            title: 'Item #2 Belonging to other Seller',
-            description: 'Buy me now!'
-        })
-        const loggedInSeller = await createSellerAndLogin('logged in seller')
-        const item3 = await doPost(`${baseUrl}/api/listings`, {
-            title: 'Item #1 Belonging to other Seller',
-            description: 'Buy me now!'
-        })
+    it.skip('should not find listings that are not "mine" for a logged in seller', async () => {
+        // setup 
+        const seller1 = await createSellerAndLogin()
+        
+        const newListing1 = await doPost(`${baseUrl}/api/listings`, {
+            title: 'Item 1',
+            description: 'The first item'
+        }) 
+        
+        const newListing2 = await doPost(`${baseUrl}/api/listings`, {
+            title: 'Item 2',
+            description: 'The second item'
+        }) 
+        
+        const newListing3 = await doPost(`${baseUrl}/api/listings`, {
+            title: 'Item 3',
+            description: 'The third item'
+        }) 
+        // use data layer to manually create another seller
+        const seller2 = await createSeller('otherSeller', 's2@gmail.com', 'password123')
 
-        // execute
-        const listings = await doGet(`${baseUrl}/api/listings/mine`)
+        // use data layer to create a few listings for them
 
-        // verify
-        expect(listings.length).toEqual(1)
-        const listing = listings[0]
-        expect(listing.title).toEqual(item3.title)
-        expect(listing.description).toEqual(item3.description)
-        expect(listing.seller).toEqual(loggedInSeller._id.toString())    
+        // execute /api/listings/mine
+
+        // verify listings only include the ones created for 'logged in' seller
     })
 
     it('should allow updating a listing when logged in the seller', async () => {

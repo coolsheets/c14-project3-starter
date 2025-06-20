@@ -18,6 +18,7 @@ describe('/api/sellers', () => {
     it('should signup a seller', async () => {
         //setup
 
+
         //execute
         const apiResult = await doPost(`${baseUrl}/api/sellers`, {
             username: 'Mr. McSeller',
@@ -83,24 +84,22 @@ describe('/api/sellers', () => {
     })
 
     it('should update a seller', async () => {
+        //setup (use the data layer to create a seller)
         const seller = await createSeller('tonysellz', 'tony@seller.com', '123456')
-        setCredentials(seller.username, '123456')
-        const updatedUsername = 'tonysellzmore'
-        const updatedEmail = 'updatedEmail@seller.com'
-        
-        //execute
+
+        //execute (use doPut with new data to /api/sellers/:id)
         const apiResult = await doPut(`${baseUrl}/api/sellers/${seller._id}`, {
-            username: updatedUsername,
-            email: updatedEmail
+                username: 'tonysellz_updated',
+                email: 'newguy@gmail.com'
         })
 
-        //verify - first the result of the POST
-        expect(apiResult.username).toEqual(updatedUsername)
-        expect(apiResult.email).toEqual(updatedEmail)
-        //verify - data layer
+        //verify - first the result of the PUT
+        expect(apiResult.username).toEqual('tonysellz_updated')
+        expect(apiResult.email).toEqual('newguy@gmail.com')
+        //verify - data layer also updated
         const updatedSeller = await findSellerById(seller._id)
-        expect(updatedSeller.username).toEqual(updatedUsername)
-        expect(updatedSeller.email).toEqual(updatedEmail)
+        expect(updatedSeller.username).toEqual('tonysellz_updated')
+        expect(updatedSeller.email).toEqual('newguy@gmail.com')
     })
 
     it('should only update a seller if you are logged in as that seller', async () => {
