@@ -16,7 +16,8 @@ const buyerSchema = new mongoose.Schema({
         type: String,
         required: false,
         select: false  // Hide pwhash from queries by default
-    }
+    },
+    favorites: [ { type: mongoose.Schema.Types.ObjectId, ref: 'listing' } ]
 });
 
 // Models
@@ -70,6 +71,17 @@ export async function findBuyerByUsername(username) {
 export async function updateBuyer({ _id, username, email }) {
     await Buyer.updateOne({ _id }, { username, email });
     return findBuyerById(_id);
+}
+
+export async function addFavoriteListingForBuyer(buyer, listing) {
+    buyer.favorites.push(listing)
+    await buyer.save()
+    return findBuyerById(buyer._id)
+}
+
+export async function getFavoriteListingsForBuyer(buyer) {
+    const buyerWithFavorites = await Buyer.findById(buyer._id).populate('favorites')
+    return buyerWithFavorites.favorites
 }
 
 export async function deleteBuyer(id) {

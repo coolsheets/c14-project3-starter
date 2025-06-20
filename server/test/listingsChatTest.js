@@ -2,14 +2,15 @@ import { createBuyer } from "../models/buyers"
 import { addBuyerMessageToChat, addSellerMessageToChat, createListing, findAllChatsForBuyer, findAllChatsForListing, findAllListings, findListingsBySeller, findNewChatsForBuyer, findNewChatsForSeller, findOrCreateChatForListing } from "../models/listings"
 import { createSeller } from "../models/sellers"
 
-describe.only('listing data layer', () => {
 
-    async function createBuyerSellerAndListing() {
-        const buyer = await createBuyer('buyer','buyer@buyer.com', 'password123')
-        const seller = await createSeller('seller', 'seller@seller.com', 'password123')
-        const listing = await createListing('Test Listing', 'This is a test listing', seller._id)
-        return { buyer, seller, listing }
-    }
+export async function createBuyerSellerAndListing() {
+    const buyer = await createBuyer('buyer','buyer@buyer.com', 'password123')
+    const seller = await createSeller('seller', 'seller@seller.com', 'password123')
+    const listing = await createListing('Test Listing', 'This is a test listing', seller._id)
+    return { buyer, seller, listing }
+}
+
+describe('listing data layer', () => {
 
     it('should list an empty database', async () => {
         // setup
@@ -141,11 +142,11 @@ describe.only('listing data layer', () => {
         const actualChat = chats[0]
         expect(actualChat.listing.toString()).toEqual(listing._id.toString())
         expect(actualChat.buyer.toString()).toEqual(buyer._id.toString())
-        expect(actualChat.messages.length).toEqual(1)
+        expect(actualChat.messages.length).toEqual(2)
         expect(actualChat.messages[0].content).toEqual('Hello Seller!')
         expect(actualChat.messages[0].side).toEqual('buyer')
-        expect(actualChat.messages[0].content).toEqual('Hello Buyer!')
-        expect(actualChat.messages[0].side).toEqual('seller')
+        expect(actualChat.messages[1].content).toEqual('Hello Buyer!')
+        expect(actualChat.messages[1].side).toEqual('seller')
     })
 
 

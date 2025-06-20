@@ -11,7 +11,13 @@ const listingSchema = new mongoose.Schema({
 
 const listingChatSchema = new mongoose.Schema({
     buyer: { type: mongoose.Schema.Types.ObjectId, ref: 'buyer' },    
-    listing: { type: mongoose.Schema.Types.ObjectId, ref: 'listing' },    
+    listing: { type: mongoose.Schema.Types.ObjectId, ref: 'listing' },
+    messages: [
+        {
+            content: String,
+            side: { type: String, enum: ['buyer','seller'] }
+        }
+    ]    
 });
 
 // Models
@@ -71,12 +77,20 @@ export async function findAllChatsForListing(listing) {
 
 // add a message to a chat (from the buyer)
 export async function addBuyerMessageToChat(chat, message) {
-    return
+    chat.messages.push({
+        content: message,
+        side: 'buyer'
+    })
+    return await chat.save()
 }
 
 // add a message to a chat (from the seller)
 export async function addSellerMessageToChat(chat, message) {
-    return
+    chat.messages.push({
+        content: message,
+        side: 'seller'
+    })
+    return await chat.save()
 }
 
 // find all chats that a seller has not yet responded to
